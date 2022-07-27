@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="preview_page">
        <layout class="QGridLayout" name="gridLayout">
@@ -446,7 +446,7 @@ border: 1px solid red;
      <x>0</x>
      <y>0</y>
      <width>953</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>

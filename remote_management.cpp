@@ -13,22 +13,26 @@ remote_management::remote_management(QWidget *parent)
     }
     connect(management_socket, &QUdpSocket::readyRead, this, &remote_management::recieve_management_data);
     ui->cl_slot0->setFocus();
+    cl_slots.append(ui->cl_slot0);
+    cl_slots.append(ui->cl_slot1);
+    cl_slots.append(ui->cl_slot2);
 }
-void remote_management::process_preview(const QByteArray& data) {
+void remote_management::process_preview(const QByteArray& data, int client) {
     QPixmap pxm;
     QByteArray uncompressed = qUncompress(data);
     pxm.loadFromData(uncompressed, "JPG");
 
-    ui->preview_scr->setPixmap(pxm);
+    if (cur_client == client) ui->preview_scr->setPixmap(pxm);
 
     // fix later
     auto pxm_scaled = pxm.scaled(ui->cl_slot0->size().height() - 5, ui->cl_slot0->size().width() - 5);
     QIcon qi(pxm_scaled);
     qDebug() << "icon size" << qi.actualSize(ui->cl_slot0->size());
-    ui->cl_slot0->setIcon(qi);
-    ui->cl_slot0->setText("");
-    ui->cl_slot0->setIconSize(pxm_scaled.rect().size());
-    ui->cl_slot0->update();
+    auto tmp = cl_con.value(client);
+    tmp->setIcon(qi);
+    tmp->setText("");
+    tmp->setIconSize(pxm_scaled.rect().size());
+    tmp->update();
 }
 void remote_management::process_client(const QNetworkDatagram& dg) {
     QByteArray data = dg.data();
@@ -37,7 +41,7 @@ void remote_management::process_client(const QNetworkDatagram& dg) {
     ds >> msg;
     if (msg.msg == "SCR") {
         qDebug() << "Incoming preview from client " << dg.senderPort();
-        process_preview(msg.data);
+        process_preview(msg.data, dg.senderPort());
     }
     else if (msg.msg == "DSC") {
         qDebug() << "Pending disconnection from client " << dg.senderPort();
@@ -72,7 +76,10 @@ void remote_management::process_new_client(const QNetworkDatagram& dg) {
     }
     else {
         clients.insert(dg.senderPort());
-
+        auto tmp = cl_slots.head();
+        cl_slots.pop_front();
+        cl_con.insert(dg.senderPort(), tmp);
+        con_cl.insert(tmp, dg.senderPort());
     }
     QByteArray ans_data;
     QDataStream answer(&ans_data, QIODevice::WriteOnly);
@@ -99,6 +106,13 @@ void remote_management::process_client_disconnect(const QNetworkDatagram& dg) {
     }
     else {
         clients.remove(dg.senderPort());
+        auto tmp = cl_con.take(dg.senderPort());
+        tmp->setIcon(QIcon());
+        tmp->setText("ОЖИДАНИЕ КЛИЕНТА...");
+        tmp->update();
+        cl_con.remove(dg.senderPort());
+        con_cl.remove(tmp);
+        cl_slots.append(tmp);
         qDebug() << "Client " << dg.senderPort() << " disconnected";
     }
     QByteArray data;
@@ -115,7 +129,7 @@ void remote_management::recieve_management_data() {
         std::stringstream ss;
         ss << "From " << dg.senderAddress().toString().toStdString();
         ss << ":" << dg.senderPort() << " recieved " << dg_size;
-        qDebug() << QString::fromStdString(ss.str());
+       // qDebug() << QString::fromStdString(ss.str());
 
         process_client(dg);
     }
@@ -129,6 +143,7 @@ remote_management::~remote_management()
 void remote_management::on_cl_slot0_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    cur_client = con_cl.value(ui->cl_slot0);
 //    if (sender() == ui->cl_slot0) {
 
 //    }
@@ -137,4 +152,16 @@ void remote_management::on_cl_slot0_clicked()
 void remote_management::on_next_page_2_clicked()
 {
      ui->stackedWidget->setCurrentIndex(1);
+}
+
+void remote_management::on_cl_slot1_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+    cur_client = con_cl.value(ui->cl_slot1);
+}
+
+void remote_management::on_cl_slot2_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+    cur_client = con_cl.value(ui->cl_slot2);
 }
