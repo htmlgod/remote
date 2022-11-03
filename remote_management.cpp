@@ -31,7 +31,7 @@ void remote_management::mgm_server::readyRead()
 {
     QTcpSocket *client = (QTcpSocket*)sender();
     auto cl_port = client->peerPort();
-    QByteArray data = client->readAll();
+    auto data = client->readAll();
     QPixmap pxm;
     QByteArray uncompressed = qUncompress(data);
     pxm.loadFromData(uncompressed, "JPG");
