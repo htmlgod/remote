@@ -6,7 +6,6 @@
 #include <QUdpSocket>
 #include <QtNetwork>
 #include <QtWidgets>
-#include <sstream>
 
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -18,12 +17,12 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-extern qint16 cur_client;
+extern quint16 CURRENT_CLIENT;
 extern QSet<QTcpSocket*> CLIENTS;
-extern QMap<qint16, QPushButton*> CLIENT_TO_SLOT;
-extern QMap<QPushButton*, qint16> SLOT_TO_CLIENT;
+extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
+extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
+extern QMap<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
-
 
 struct protocol_msg_data {
     QString msg;
@@ -46,7 +45,7 @@ const QString y_res = "720";
 const QString x_res = "1280";
 const QString img_format = "JPG";
 const QString compression = "9";
-const QString preview_upd = "3"; // secs
+const QString preview_upd = "6"; // secs
 const QString xmit_upd = "0.05"; // secs
 struct server_settings_data {
 
@@ -73,21 +72,13 @@ class remote_management : public QMainWindow
 
 private slots:
 
-    void on_cl_slot0_clicked();
-
+    void on_slotclicked();
     void on_next_page_2_clicked();
-
-    void on_cl_slot1_clicked();
-
-    void on_cl_slot2_clicked();
+    void on_next_page_clicked();
 
 public:
     remote_management(QWidget *parent = nullptr);
     ~remote_management();
-
-//    void init_new_client(qintptr cl);
-//    void send_settings(qintptr cl);
-//    void exchange_keys(qintptr cl);
 
 private:
     class mgm_server;
@@ -99,18 +90,18 @@ class remote_management::mgm_server : public QTcpServer
 {
     Q_OBJECT
 
-    public:
-        mgm_server(QObject *parent=0, QLabel* preview_screen=0);
+public:
+    mgm_server(QObject *parent=0, QLabel* preview_screen=0);
 
-    private slots:
-        void readyRead();
-        void disconnected();
+private slots:
+    void readyRead();
+    void disconnected();
 
-    protected:
-        void incomingConnection(qintptr socketfd);
-    private:
-        QLabel* preview_screen;
-        QDataStream in;
+protected:
+    void incomingConnection(qintptr socketfd);
+private:
+    QLabel* preview_screen;
+    QDataStream in;
 };
 
 #endif // MAINWINDOW_H
