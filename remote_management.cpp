@@ -50,16 +50,17 @@ void remote_management::mgm_server::readyRead()
         preview_screen->setPixmap(pxm);
     }
     // fix later
-    //auto pxm_scaled = pxm.scaled(ui->cl_slot0->size().height() - 5, ui->cl_slot0->size().width() - 5);
-    //QIcon qi(pxm_scaled);
-    QIcon qi(pxm);
+    auto slot = CLIENT_TO_SLOT.value(cl_port);
+    auto pxm_scaled = pxm.scaled(slot->size().height() - 5, slot->size().width() - 5);
+    QIcon qi(pxm_scaled);
+    //QIcon qi(pxm);
     //qDebug() << "icon size" << qi.actualSize(ui->cl_slot0->size());
-    auto tmp = CLIENT_TO_SLOT.value(cl_port);
-    tmp->setIcon(qi);
-    tmp->setText("");
-    //tmp->setIconSize(pxm_scaled.rect().size());
-    tmp->setIconSize(pxm.rect().size());
-    tmp->update();
+
+    slot->setIcon(qi);
+    slot->setText("");
+    slot->setIconSize(pxm_scaled.rect().size());
+    //slot->setIconSize(pxm.rect().size());
+    slot->update();
 }
 
 void remote_management::mgm_server::incomingConnection(qintptr socketfd)
@@ -130,4 +131,9 @@ void remote_management::on_next_page_2_clicked()
 void remote_management::on_next_page_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
+}
+
+void remote_management::on_connect_button_clicked()
+{
+
 }

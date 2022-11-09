@@ -180,6 +180,9 @@
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_2">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMaximumSize</enum>
+        </property>
         <item row="1" column="0">
          <widget class="QWidget" name="secondrow" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_2">

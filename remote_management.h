@@ -76,6 +76,8 @@ private slots:
     void on_next_page_2_clicked();
     void on_next_page_clicked();
 
+    void on_connect_button_clicked();
+
 public:
     remote_management(QWidget *parent = nullptr);
     ~remote_management();
