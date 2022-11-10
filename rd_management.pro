@@ -10,15 +10,12 @@ CONFIG += c++20
 
 SOURCES += \
     main.cpp \
-    remote_control.cpp \
     remote_management.cpp
 
 HEADERS += \
-    remote_control.h \
     remote_management.h
 
 FORMS += \
-    remote_control.ui \
     remote_management.ui
 
 # Default rules for deployment.
