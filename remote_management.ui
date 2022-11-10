@@ -149,7 +149,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>32</height>
+               <height>28</height>
               </size>
              </property>
              <property name="text">
@@ -180,11 +180,17 @@
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_2">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMaximumSize</enum>
+        </property>
         <item row="1" column="0">
          <widget class="QWidget" name="secondrow" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
             <widget class="QPushButton" name="cl_slot3">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -213,6 +219,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="cl_slot4">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -246,6 +255,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="cl_slot5">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -280,6 +292,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="QPushButton" name="cl_slot0">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -299,10 +314,7 @@
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">QPushButton:hover:!pressed
-{
-border: 1px solid red; 
-}</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>ОЖИДАНИЕ КЛИЕНТА...</string>
@@ -314,6 +326,9 @@ border: 1px solid red;
            </item>
            <item>
             <widget class="QPushButton" name="cl_slot1">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -342,6 +357,9 @@ border: 1px solid red;
            </item>
            <item>
             <widget class="QPushButton" name="cl_slot2">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -411,7 +429,7 @@ border: 1px solid red;
            <item row="1" column="0">
             <widget class="QPushButton" name="next_page">
              <property name="text">
-              <string>&gt;</string>
+              <string>&lt;</string>
              </property>
              <property name="flat">
               <bool>true</bool>

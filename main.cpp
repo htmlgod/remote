@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     remote_management w;
-    w.show();
+    w.showMaximized();
     return a.exec();
 }
 
