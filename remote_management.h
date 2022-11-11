@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+
 #include <QCursor>
 #include <QUdpSocket>
 #include <QtNetwork>
@@ -12,6 +12,7 @@
 
 #include <QPixmap>
 
+#include "remote_control.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

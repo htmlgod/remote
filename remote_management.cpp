@@ -130,5 +130,6 @@ void remote_management::on_next_page_clicked()
 
 void remote_management::on_connect_button_clicked()
 {
-
+    auto rc = new remote_control(this);
+    rc->showFullScreen();
 }
