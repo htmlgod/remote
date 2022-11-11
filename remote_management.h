@@ -11,7 +11,7 @@
 #include <QTcpSocket>
 
 #include <QPixmap>
-#include "remote_control.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,7 +21,7 @@ extern quint16 CURRENT_CLIENT;
 extern QSet<QTcpSocket*> CLIENTS;
 extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
 extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
-extern QMap<QPushButton*, quint16> SLOT_TO_CLIENT;
+extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
 
 struct protocol_msg_data {

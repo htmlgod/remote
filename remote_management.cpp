@@ -4,7 +4,7 @@
 quint16 CURRENT_CLIENT = 0;
 QSet<QTcpSocket*> CLIENTS;
 QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
-QMap<QPushButton*, quint16> SLOT_TO_CLIENT;
+QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 QQueue<QPushButton*> CLIENT_SLOTS;
 QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 
@@ -18,7 +18,6 @@ remote_management::remote_management(QWidget *parent)
         qDebug() << "ERROR OPEN SOCK";
         return;
     }
-    ui->cl_slot0->setFocus();
     CLIENT_SLOTS.append(ui->cl_slot0);
     CLIENT_SLOTS.append(ui->cl_slot1);
     CLIENT_SLOTS.append(ui->cl_slot2);
@@ -28,6 +27,7 @@ remote_management::remote_management(QWidget *parent)
     for (auto slot : CLIENT_SLOTS) {
         connect(slot, SIGNAL(clicked()), this, SLOT(on_slotclicked()));
     }
+
 }
 remote_management::mgm_server::mgm_server(QObject *parent, QLabel* preview_scr) : QTcpServer(parent), preview_screen(preview_scr){}
 
@@ -40,7 +40,7 @@ void remote_management::mgm_server::readyRead()
     CLIENT_TO_DATASTREAM[cl_port]->startTransaction();
     *CLIENT_TO_DATASTREAM[cl_port] >> data;
     if(!CLIENT_TO_DATASTREAM[cl_port]->commitTransaction()) return;
-    qDebug() << "incomming preview from " << cl_port;
+    qDebug() << "incomming preview from" << cl_port;
 
     QPixmap pxm;
     QByteArray uncompressed = qUncompress(data);
@@ -51,15 +51,11 @@ void remote_management::mgm_server::readyRead()
     }
     // fix later
     auto slot = CLIENT_TO_SLOT.value(cl_port);
-    auto pxm_scaled = pxm.scaled(slot->size().height() - 5, slot->size().width() - 5);
-    QIcon qi(pxm_scaled);
-    //QIcon qi(pxm);
-    //qDebug() << "icon size" << qi.actualSize(ui->cl_slot0->size());
-
+    const int border_offset = 4;
+    QIcon qi(pxm.scaled(slot->maximumSize().width() - border_offset, slot->maximumSize().height() - border_offset));
     slot->setIcon(qi);
     slot->setText("");
-    slot->setIconSize(pxm_scaled.rect().size());
-    //slot->setIconSize(pxm.rect().size());
+    slot->setIconSize(QSize(slot->maximumSize().width() - border_offset, slot->maximumSize().height() - border_offset));
     slot->update();
 }
 
@@ -71,7 +67,6 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
     auto cl_port = client->peerPort();
     qDebug() << "New client from:" << cl_port;
     CURRENT_CLIENT = cl_port;
-    qDebug() << CURRENT_CLIENT;
     connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
@@ -88,9 +83,9 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
         y_res,x_res,img_format,compression, preview_upd, xmit_upd
     };
     QByteArray settings_data;
-    QDataStream settings(&settings_data, QIODevice::ReadWrite);
-    settings.setVersion(QDataStream::Qt_5_0);
-    settings << server_settings;
+    QDataStream out(&settings_data, QIODevice::ReadWrite);
+    out.setVersion(QDataStream::Qt_5_0);
+    out << server_settings;
     client->write(settings_data);
     qDebug() << "Settings sended to " << cl_port;
 }
