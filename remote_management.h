@@ -3,7 +3,7 @@
 
 
 #include <QCursor>
-#include <QUdpSocket>
+
 #include <QtNetwork>
 #include <QtWidgets>
 
@@ -19,11 +19,12 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 extern quint16 CURRENT_CLIENT;
-extern QSet<QTcpSocket*> CLIENTS;
+extern QMap<quint16, QTcpSocket*> CLIENTS;
 extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
 extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
+extern QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
 
 struct protocol_msg_data {
     QString msg;
@@ -46,7 +47,7 @@ const QString y_res = "720";
 const QString x_res = "1280";
 const QString img_format = "JPG";
 const QString compression = "9";
-const QString preview_upd = "6"; // secs
+const QString preview_upd = "0.05"; // secs
 const QString xmit_upd = "0.05"; // secs
 struct server_settings_data {
 
@@ -83,6 +84,8 @@ public:
     remote_management(QWidget *parent = nullptr);
     ~remote_management();
 
+    void start_control();
+    void stop_control();
 private:
     class mgm_server;
 

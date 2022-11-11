@@ -2,11 +2,12 @@
 #include "ui_remote_management.h"
 
 quint16 CURRENT_CLIENT = 0;
-QSet<QTcpSocket*> CLIENTS;
+QMap<quint16, QTcpSocket*> CLIENTS;
 QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
 QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 QQueue<QPushButton*> CLIENT_SLOTS;
 QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
+QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
 
 remote_management::remote_management(QWidget *parent)
     : QMainWindow(parent)
@@ -63,8 +64,9 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
 {
     QTcpSocket *client = new QTcpSocket(this);
     client->setSocketDescriptor(socketfd);
-    CLIENTS.insert(client);
     auto cl_port = client->peerPort();
+    CLIENTS.insert(cl_port, client);
+
     qDebug() << "New client from:" << cl_port;
     CURRENT_CLIENT = cl_port;
     connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -72,6 +74,7 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
 
     auto slot = CLIENT_SLOTS.head();
     slot->setEnabled(true);
+    CLIENT_TO_ADDRESS.insert(cl_port, client->peerAddress());
     CLIENT_SLOTS.pop_front();
     CLIENT_TO_SLOT.insert(cl_port, slot);
     SLOT_TO_CLIENT.insert(slot, cl_port);
@@ -94,7 +97,12 @@ void remote_management::mgm_server::disconnected()
 {
     QTcpSocket *client = (QTcpSocket*)sender();
     auto cl_port = client->peerPort();
-    CLIENTS.remove(client);
+    if (CURRENT_CLIENT == cl_port) {
+        preview_screen->setPixmap(QPixmap());
+        preview_screen->setText("ОЖИДАНИЕ КЛИЕНТА...");
+        preview_screen->update();
+    }
+    CLIENTS.remove(cl_port);
     auto slot = CLIENT_TO_SLOT.take(cl_port);
     slot->setEnabled(false);
     slot->setIcon(QIcon());
@@ -104,6 +112,7 @@ void remote_management::mgm_server::disconnected()
     SLOT_TO_CLIENT.remove(slot);
     CLIENT_TO_DATASTREAM.remove(cl_port);
     CLIENT_SLOTS.push_front(slot);
+    CLIENT_TO_ADDRESS.remove(cl_port);
     qDebug() << "Client " << cl_port << " disconnected";
 }
 remote_management::~remote_management()
@@ -112,11 +121,32 @@ remote_management::~remote_management()
     delete mgm_socket;
 }
 
+void remote_management::start_control()
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_0);
+    out << QString("START");
+    CLIENTS[CURRENT_CLIENT]->write(block);
+    CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
+}
+
+void remote_management::stop_control()
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_0);
+    out << QString("STOP");
+    CLIENTS[CURRENT_CLIENT]->write(block);
+    CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
+}
+
 void remote_management::on_slotclicked()
 {
     auto *slot = (QPushButton*)sender();
     ui->stackedWidget->setCurrentIndex(0);
     CURRENT_CLIENT = SLOT_TO_CLIENT[slot];
+    CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
 }
 
 void remote_management::on_next_page_2_clicked()
@@ -130,6 +160,14 @@ void remote_management::on_next_page_clicked()
 
 void remote_management::on_connect_button_clicked()
 {
-    auto rc = new remote_control(this);
-    rc->showFullScreen();
+    start_control();
+
+    auto rc = new remote_control(CLIENT_TO_ADDRESS.value(CURRENT_CLIENT),this);
+    rc->showMaximized();
+    QEventLoop loop;
+
+    connect(rc, SIGNAL(destroyed()), &loop, SLOT(quit()));
+
+    loop.exec();
+    stop_control();
 }
