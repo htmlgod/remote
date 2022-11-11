@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+
 #include <QCursor>
+#include <QMainWindow>
 #include <QUdpSocket>
 #include <QtNetwork>
 #include <QtWidgets>
@@ -11,19 +12,32 @@
 #include <QTcpSocket>
 
 #include <QPixmap>
-#include "remote_control.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
+const int CLIENT_CONTROL_PORT = 1235;
 extern quint16 CURRENT_CLIENT;
-extern QSet<QTcpSocket*> CLIENTS;
+extern QMap<quint16, QTcpSocket*> CLIENTS;
 extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
 extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
-extern QMap<QPushButton*, quint16> SLOT_TO_CLIENT;
+extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
-
+extern QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
+struct control_data {
+    QString type; // move, click
+    int xpos;
+    int ypos;
+    friend QDataStream &operator<<(QDataStream& out, const control_data& cd){
+        out << cd.type <<  cd.xpos <<  cd.ypos;
+        return out;
+    }
+    friend QDataStream &operator>>(QDataStream& in, control_data& cd){
+        in >> cd.type >>  cd.xpos >>  cd.ypos;
+        return in;
+    }
+};
 struct protocol_msg_data {
     QString msg;
     QByteArray data;
@@ -45,7 +59,7 @@ const QString y_res = "720";
 const QString x_res = "1280";
 const QString img_format = "JPG";
 const QString compression = "9";
-const QString preview_upd = "6"; // secs
+const QString preview_upd = "2"; // secs
 const QString xmit_upd = "0.05"; // secs
 struct server_settings_data {
 
@@ -81,12 +95,17 @@ private slots:
 public:
     remote_management(QWidget *parent = nullptr);
     ~remote_management();
-
+    bool eventFilter(QObject* target, QEvent* event) override;
+    void start_control();
+    void stop_control();
 private:
     class mgm_server;
 
     mgm_server* mgm_socket;
+    QUdpSocket* control_socket;
+    QHostAddress cl;
     Ui::MainWindow *ui;
+    bool is_control = false;
 };
 class remote_management::mgm_server : public QTcpServer
 {

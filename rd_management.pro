@@ -16,6 +16,7 @@ HEADERS += \
     remote_management.h
 
 FORMS += \
+    remote_control.ui \
     remote_management.ui
 
 # Default rules for deployment.
