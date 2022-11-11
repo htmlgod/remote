@@ -19,6 +19,8 @@ remote_management::remote_management(QWidget *parent)
         qDebug() << "ERROR OPEN SOCK";
         return;
     }
+    ui->preview_scr->installEventFilter(this);
+    control_socket = new QUdpSocket(this);
     CLIENT_SLOTS.append(ui->cl_slot0);
     CLIENT_SLOTS.append(ui->cl_slot1);
     CLIENT_SLOTS.append(ui->cl_slot2);
@@ -29,6 +31,35 @@ remote_management::remote_management(QWidget *parent)
         connect(slot, SIGNAL(clicked()), this, SLOT(on_slotclicked()));
     }
 
+}
+bool remote_management::eventFilter(QObject *target, QEvent *event)
+{
+    if (target == ui->preview_scr and is_control) {
+//        if (event->type() == QEvent::MouseMove) {
+//            auto ev = static_cast<QMouseEvent *>(event);
+//            QByteArray data;
+//            QDataStream out(&data, QIODevice::WriteOnly);
+//            control_data cd{"MOVE", ev->x(),ev->y()};
+//            out << cd;
+//            control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
+//            return true;
+//        }
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto ev = static_cast<QMouseEvent *>(event);
+            //ui->screen->setText(ui->screen->text() + " pressed");
+            QByteArray data;
+            QDataStream out(&data, QIODevice::WriteOnly);
+            QTransform tr;
+            tr.scale(1680*1.0/ui->preview_scr->width(), 1050*1.0/ui->preview_scr->height());
+            QPoint new_pos = tr.map(ev->pos());
+            control_data cd{"CLICK", new_pos.x(),new_pos.y()};
+            ev->pos();
+            out << cd;
+            control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(target, event);
 }
 remote_management::mgm_server::mgm_server(QObject *parent, QLabel* preview_scr) : QTcpServer(parent), preview_screen(preview_scr){}
 
@@ -139,6 +170,7 @@ void remote_management::stop_control()
     out << QString("STOP");
     CLIENTS[CURRENT_CLIENT]->write(block);
     CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
+
 }
 
 void remote_management::on_slotclicked()
@@ -160,14 +192,16 @@ void remote_management::on_next_page_clicked()
 
 void remote_management::on_connect_button_clicked()
 {
-    start_control();
+    cl = CLIENT_TO_ADDRESS[CURRENT_CLIENT];
+    is_control = !is_control;
+    if (is_control) {
+        start_control();
+        ui->connect_button->setText("Отключиться");
+    }
+    else {
+        stop_control();
+        ui->connect_button->setText("Подключиться");
+    }
 
-    auto rc = new remote_control(CLIENT_TO_ADDRESS.value(CURRENT_CLIENT),this);
-    rc->showMaximized();
-    QEventLoop loop;
 
-    connect(rc, SIGNAL(destroyed()), &loop, SLOT(quit()));
-
-    loop.exec();
-    stop_control();
 }

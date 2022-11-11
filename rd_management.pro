@@ -10,11 +10,9 @@ CONFIG += c++20
 
 SOURCES += \
     main.cpp \
-    remote_control.cpp \
     remote_management.cpp
 
 HEADERS += \
-    remote_control.h \
     remote_management.h
 
 FORMS += \
