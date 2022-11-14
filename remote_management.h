@@ -35,7 +35,6 @@ void gen_key_for_client();
 void encrypt(QByteArray data);
 void decrypt(QByteArray data);
 
-
 class remote_management : public QMainWindow
 {
     Q_OBJECT
@@ -48,15 +47,10 @@ private slots:
     void toggle_fullscreen();
 
     void on_show_settings_action_triggered();
-
     void on_show_about_action_triggered();
-
     void on_exit_action_triggered();
-
     void on_return_from_settings_btn_clicked();
-
     void on_settings_save_btn_clicked();
-
     void setting_changed();
 
 public:
@@ -82,9 +76,6 @@ private:
     class mgm_server;
     mgm_server* mgm_socket;
 
-    // add client info (screen resolution, OS?)
-    int cl_desktop_width = 1680;
-    int cl_desktop_height = 1050;
     QUdpSocket* control_socket;
     QHostAddress cl;
     bool is_control = false;

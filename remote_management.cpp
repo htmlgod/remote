@@ -11,19 +11,6 @@ QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
 QMap<quint16, client_info> CLIENT_TO_INFO;
 server_settings_data XMIT_SETTINGS;
 
-
-void remote_management::get_settings_from_ui()
-{
-    XMIT_SETTINGS = {
-        ui->settings_hres->text(),
-        ui->settings_wres->text(),
-        ui->settings_imgformat->currentText(),
-        ui->settings_compression->currentText(),
-        ui->settings_updtime->text(),
-        ui->settings_fps->text()
-    };
-}
-
 remote_management::remote_management(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -249,8 +236,6 @@ void remote_management::send_msg_to_cur_client(const QString &msg) {
     CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
 }
 
-
-
 void remote_management::start_control()
 {
     send_msg_to_cur_client("START");
@@ -330,6 +315,18 @@ void remote_management::toggle_fullscreen()
     }
 }
 
+void remote_management::get_settings_from_ui()
+{
+    XMIT_SETTINGS = {
+        ui->settings_hres->text(),
+        ui->settings_wres->text(),
+        ui->settings_imgformat->currentText(),
+        ui->settings_compression->currentText(),
+        ui->settings_updtime->text(),
+        ui->settings_fps->text()
+    };
+}
+
 void remote_management::on_show_settings_action_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
@@ -349,7 +346,8 @@ void remote_management::on_exit_action_triggered()
     }
     else {
         QMessageBox::warning(ui->preview_scr,
-                                 "Выход", "Выход невозможен, так как еще установлены соединения.\n"
+                             "Выход",
+                             "Выход невозможен, так как еще установлены соединения.\n"
                              "Завершите работу программы клиента на удаленных компьютерах и повторите попытку");
     }
 }
@@ -367,5 +365,5 @@ void remote_management::on_settings_save_btn_clicked()
 
 void remote_management::setting_changed()
 {
-    ui->settings_save_btn->setEnabled(true);
+    if (CLIENTS.empty()) ui->settings_save_btn->setEnabled(true);
 }

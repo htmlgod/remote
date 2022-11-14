@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="preview_page">
        <layout class="QGridLayout" name="gridLayout">
@@ -720,7 +720,7 @@
              <string>9999</string>
             </property>
             <property name="text">
-             <string>1</string>
+             <string>1280</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -743,7 +743,7 @@
              <string>999</string>
             </property>
             <property name="text">
-             <string>2</string>
+             <string>25</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
