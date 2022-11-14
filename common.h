@@ -55,13 +55,13 @@ struct server_settings_data {
     QString img_format;
     QString compression;
     QString preview_upd;
-    QString xmit_upd;
+    QString xmit_fps;
     friend QDataStream &operator<<(QDataStream& out, const server_settings_data& server_settings){
-        out << server_settings.y_res <<  server_settings.x_res <<  server_settings.img_format <<  server_settings.compression <<  server_settings.preview_upd <<  server_settings.xmit_upd;
+        out << server_settings.y_res <<  server_settings.x_res <<  server_settings.img_format <<  server_settings.compression <<  server_settings.preview_upd <<  server_settings.xmit_fps;
         return out;
     }
     friend QDataStream &operator>>(QDataStream& in, server_settings_data& server_settings){
-        in >> server_settings.y_res >>  server_settings.x_res >>  server_settings.img_format >>  server_settings.compression >>  server_settings.preview_upd >>  server_settings.xmit_upd;
+        in >> server_settings.y_res >>  server_settings.x_res >>  server_settings.img_format >>  server_settings.compression >>  server_settings.preview_upd >>  server_settings.xmit_fps;
         return in;
     }
 };

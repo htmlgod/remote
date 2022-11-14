@@ -29,18 +29,11 @@ extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
 extern QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
-
-const QString y_res = "720";
-const QString x_res = "1280";
-const QString img_format = "JPG";
-const QString compression = "9";
-const QString preview_upd = "2"; // secs
-const QString xmit_upd = "0.04"; // secs
+extern server_settings_data XMIT_SETTINGS;
 
 void gen_key_for_client();
 void encrypt(QByteArray data);
 void decrypt(QByteArray data);
-
 
 
 class remote_management : public QMainWindow
@@ -54,6 +47,18 @@ private slots:
     void on_connect_button_clicked();
     void toggle_fullscreen();
 
+    void on_show_settings_action_triggered();
+
+    void on_show_about_action_triggered();
+
+    void on_exit_action_triggered();
+
+    void on_return_from_settings_btn_clicked();
+
+    void on_settings_save_btn_clicked();
+
+    void setting_changed();
+
 public:
     remote_management(QWidget *parent = nullptr);
 
@@ -66,7 +71,7 @@ private:
     QPoint translate_coordinates(const QPoint& mouse_pos);
     void send_controls(const control_data& data);
     void send_msg_to_cur_client(const QString& msg);
-
+    void get_settings_from_ui();
 
     void start_fullscreen();
     QShortcut* fullscreen_Ctrl_F = nullptr;

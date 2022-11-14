@@ -9,6 +9,20 @@ QQueue<QPushButton*> CLIENT_SLOTS;
 QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
 QMap<quint16, client_info> CLIENT_TO_INFO;
+server_settings_data XMIT_SETTINGS;
+
+
+void remote_management::get_settings_from_ui()
+{
+    XMIT_SETTINGS = {
+        ui->settings_hres->text(),
+        ui->settings_wres->text(),
+        ui->settings_imgformat->currentText(),
+        ui->settings_compression->currentText(),
+        ui->settings_updtime->text(),
+        ui->settings_fps->text()
+    };
+}
 
 remote_management::remote_management(QWidget *parent)
     : QMainWindow(parent)
@@ -32,7 +46,37 @@ remote_management::remote_management(QWidget *parent)
         connect(slot, SIGNAL(clicked()), this, SLOT(on_slotclicked()));
     }
     ui->connect_button->setEnabled(false);
+    ui->settings_save_btn->setEnabled(false);
 
+    connect(ui->settings_fps, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_hres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_wres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_compression, SIGNAL(currentIndexChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_imgformat, SIGNAL(currentIndexChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_updtime, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
+
+    get_settings_from_ui();
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Удаленное управление");
+    msgBox.setText("Установленны следующие настройки по умолчанию:\n"
+                   "Высота изображения - " + XMIT_SETTINGS.y_res + "\n"
+                   "Ширина изображения - " + XMIT_SETTINGS.x_res + "\n"
+                   "Число кадров в секунду при передаче - " + XMIT_SETTINGS.xmit_fps + "\n"
+                   "Интервал обновления предпросмотра - " + XMIT_SETTINGS.preview_upd +  "\n"
+                   "Формат изображения - " + XMIT_SETTINGS.img_format + "\n"
+                   "Степень сжатия - " + XMIT_SETTINGS.compression);
+    msgBox.setInformativeText("Хотите ли Вы изменить настройки передачи?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int ret = msgBox.exec();
+    switch (ret) {
+      case QMessageBox::Yes:
+          ui->stackedWidget->setCurrentIndex(2);
+          break;
+      case QMessageBox::No:
+          ui->stackedWidget->setCurrentIndex(1);
+          break;
+    }
 }
 QPoint remote_management::translate_coordinates(const QPoint& mouse_pos) {
     QTransform tr;
@@ -115,7 +159,7 @@ void remote_management::mgm_server::readyRead()
 
     QPixmap pxm;
     QByteArray uncompressed = qUncompress(data);
-    pxm.loadFromData(uncompressed, "JPG");
+    pxm.loadFromData(uncompressed, XMIT_SETTINGS.img_format.toStdString().data());
 
     if (CURRENT_CLIENT == cl_port) {
         preview_screen->setPixmap(pxm);
@@ -151,13 +195,10 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
     CLIENT_TO_DATASTREAM[cl_port]->setDevice(client);
     CLIENT_TO_DATASTREAM[cl_port]->setVersion(QDataStream::Qt_5_0);
 
-    server_settings_data server_settings {
-        y_res,x_res,img_format,compression, preview_upd, xmit_upd
-    };
     QByteArray settings_data;
     QDataStream out(&settings_data, QIODevice::ReadWrite);
     out.setVersion(QDataStream::Qt_5_0);
-    out << server_settings;
+    out << XMIT_SETTINGS;
     client->write(settings_data);
     qDebug() << "Settings sended to " << cl_port;
     client->waitForReadyRead();
@@ -207,6 +248,7 @@ void remote_management::send_msg_to_cur_client(const QString &msg) {
     CLIENTS[CURRENT_CLIENT]->write(block);
     CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
 }
+
 
 
 void remote_management::start_control()
@@ -286,4 +328,44 @@ void remote_management::toggle_fullscreen()
     else {
         start_fullscreen();
     }
+}
+
+void remote_management::on_show_settings_action_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(2);
+    ui->settings_save_btn->setEnabled(false);
+}
+
+void remote_management::on_show_about_action_triggered()
+{
+    QMessageBox::information(ui->preview_scr,
+                             "О программе", "Программа.\n");
+}
+
+void remote_management::on_exit_action_triggered()
+{
+    if (CLIENTS.empty()) {
+        this->close();
+    }
+    else {
+        QMessageBox::warning(ui->preview_scr,
+                                 "Выход", "Выход невозможен, так как еще установлены соединения.\n"
+                             "Завершите работу программы клиента на удаленных компьютерах и повторите попытку");
+    }
+}
+
+void remote_management::on_return_from_settings_btn_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void remote_management::on_settings_save_btn_clicked()
+{
+    get_settings_from_ui();
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void remote_management::setting_changed()
+{
+    ui->settings_save_btn->setEnabled(true);
 }
