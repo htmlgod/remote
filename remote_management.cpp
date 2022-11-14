@@ -8,6 +8,7 @@ QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 QQueue<QPushButton*> CLIENT_SLOTS;
 QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
+QMap<quint16, client_info> CLIENT_TO_INFO;
 
 remote_management::remote_management(QWidget *parent)
     : QMainWindow(parent)
@@ -35,7 +36,9 @@ remote_management::remote_management(QWidget *parent)
 }
 QPoint remote_management::translate_coordinates(const QPoint& mouse_pos) {
     QTransform tr;
-    tr.scale(cl_desktop_width*1.0/ui->preview_scr->width(), cl_desktop_height*1.0/ui->preview_scr->height());
+    auto cl_info = CLIENT_TO_INFO[CURRENT_CLIENT];
+    tr.scale(cl_info.screenw*1.0/ui->preview_scr->width(),
+             cl_info.screenh*1.0/ui->preview_scr->height());
     return tr.map(mouse_pos);
 }
 void remote_management::send_controls(const control_data& cd) {
@@ -135,9 +138,8 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
     CLIENTS.insert(cl_port, client);
 
     qDebug() << "New client from:" << cl_port;
-    CURRENT_CLIENT = cl_port;
-    connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
-    connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    if (!CURRENT_CLIENT) CURRENT_CLIENT = cl_port;
+
 
     auto slot = CLIENT_SLOTS.head();
     slot->setEnabled(true);
@@ -158,6 +160,14 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
     out << server_settings;
     client->write(settings_data);
     qDebug() << "Settings sended to " << cl_port;
+    client->waitForReadyRead();
+    QDataStream in(client);
+    int w, h;
+    in >> w >> h;
+    qDebug() << "Recieved client info:" << w << h;
+    CLIENT_TO_INFO.insert(cl_port, {w,h});
+    connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
 }
 
 void remote_management::mgm_server::disconnected()
@@ -175,6 +185,7 @@ void remote_management::mgm_server::disconnected()
     slot->setIcon(QIcon());
     slot->setText("ОЖИДАНИЕ КЛИЕНТА...");
     slot->update();
+    CLIENT_TO_INFO.remove(cl_port);
     CLIENT_TO_SLOT.remove(cl_port);
     SLOT_TO_CLIENT.remove(slot);
     CLIENT_TO_DATASTREAM.remove(cl_port);

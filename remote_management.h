@@ -15,6 +15,13 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+struct client_info {
+    int screenw;
+    int screenh;
+};
+
+
+extern QMap<quint16, client_info> CLIENT_TO_INFO;
 extern quint16 CURRENT_CLIENT;
 extern QMap<quint16, QTcpSocket*> CLIENTS;
 extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
