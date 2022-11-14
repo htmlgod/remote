@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
-CONFIG += c++20
+CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -13,10 +13,10 @@ SOURCES += \
     remote_management.cpp
 
 HEADERS += \
+    common.h \
     remote_management.h
 
 FORMS += \
-    remote_control.ui \
     remote_management.ui
 
 # Default rules for deployment.
