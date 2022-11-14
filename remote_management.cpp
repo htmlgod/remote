@@ -31,6 +31,7 @@ remote_management::remote_management(QWidget *parent)
         connect(slot, SIGNAL(clicked()), this, SLOT(on_slotclicked()));
     }
     ui->connect_button->setEnabled(false);
+
 }
 QPoint remote_management::translate_coordinates(const QPoint& mouse_pos) {
     QTransform tr;
@@ -195,6 +196,8 @@ void remote_management::send_msg_to_cur_client(const QString &msg) {
     CLIENTS[CURRENT_CLIENT]->write(block);
     CLIENTS[CURRENT_CLIENT]->waitForBytesWritten();
 }
+
+
 void remote_management::start_control()
 {
     send_msg_to_cur_client("START");
@@ -236,9 +239,40 @@ void remote_management::on_connect_button_clicked()
     if (is_control) {
         start_control();
         ui->connect_button->setText("Отключиться");
+        QMessageBox::information(ui->preview_scr, "Удаленное управление", "Вы вошли в режим удаленного управления.\n"
+                                                               "Чтобы выйти из полноэкранного режима, нажмите Ctrl+F");
+        start_fullscreen();
     }
     else {
         stop_control();
         ui->connect_button->setText("Подключиться");
+    }
+}
+void remote_management::start_fullscreen()
+{
+    ui->preview_scr->setWindowFlag(Qt::Window);
+    ui->preview_scr->showFullScreen();
+    if (fullscreen_Ctrl_F != nullptr) delete fullscreen_Ctrl_F;
+    fullscreen_Ctrl_F = new QShortcut(QKeySequence(tr("Ctrl+F","Toggle Fullscreen")), ui->preview_scr);
+    connect(fullscreen_Ctrl_F, SIGNAL(activated()), this, SLOT(toggle_fullscreen()));
+    is_fullscreen = true;
+}
+
+void remote_management::stop_fullscreen()
+{
+    ui->preview_scr->setWindowFlag(Qt::Window, false);
+    ui->preview_scr->show();
+    if (fullscreen_Ctrl_F != nullptr) delete fullscreen_Ctrl_F;
+    fullscreen_Ctrl_F = new QShortcut(QKeySequence(tr("Ctrl+F","Toggle Fullscreen")), this);
+    connect(fullscreen_Ctrl_F, SIGNAL(activated()), this, SLOT(toggle_fullscreen()));
+    is_fullscreen = false;
+}
+void remote_management::toggle_fullscreen()
+{
+    if (is_fullscreen) {
+        stop_fullscreen();
+    }
+    else {
+        start_fullscreen();
     }
 }

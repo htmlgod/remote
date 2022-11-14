@@ -13,6 +13,7 @@ SOURCES += \
     remote_management.cpp
 
 HEADERS += \
+    common.h \
     remote_management.h
 
 FORMS += \

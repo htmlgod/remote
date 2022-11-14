@@ -1,24 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QtWidgets>
 
-#include <QUdpSocket>
 #include <QtNetwork>
-#include <QTcpServer>
-#include <QTcpSocket>
-
+#include <QShortcut>
 #include <QPixmap>
 #include <QCursor>
 #include <QWheelEvent>
+
+#include <common.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-
-const int CLIENT_CONTROL_PORT = 1235;
 extern quint16 CURRENT_CLIENT;
 extern QMap<quint16, QTcpSocket*> CLIENTS;
 extern QMap<quint16, QPushButton*> CLIENT_TO_SLOT;
@@ -38,67 +34,7 @@ void gen_key_for_client();
 void encrypt(QByteArray data);
 void decrypt(QByteArray data);
 
-struct mouse_control_data {
-    QString type; // move, click, wheel
-    uint button = 0; // 1 -lmb, 3 - rmb, 2 - mmb, 0 - move
-    int xpos;
-    int ypos;
-    int delta;
-    friend QDataStream &operator<<(QDataStream& out, const mouse_control_data& cd){
-        out << cd.type << cd.button << cd.xpos <<  cd.ypos << cd.delta;
-        return out;
-    }
-    friend QDataStream &operator>>(QDataStream& in, mouse_control_data& cd){
-        in >> cd.type >> cd.button >> cd.xpos >>  cd.ypos >> cd.delta;
-        return in;
-    }
-};
-struct keyboard_control_data {
-    QString type; // press, release
-    int key = 0; // 1 -lmb, 3 - rmb, 2 - mmb, 0 - move
-    QString text;
-    friend QDataStream &operator<<(QDataStream& out, const keyboard_control_data& cd){
-        out << cd.type << cd.key << cd.text;
-        return out;
-    }
-    friend QDataStream &operator>>(QDataStream& in, keyboard_control_data& cd){
-        in >> cd.type >> cd.key >> cd.text;
-        return in;
-    }
-};
 
-struct control_data {
-    QString type;
-    mouse_control_data md;
-    keyboard_control_data kd;
-    friend QDataStream &operator<<(QDataStream& out, const control_data& cd){
-        out << cd.type << cd.md << cd.kd;
-        return out;
-    }
-    friend QDataStream &operator>>(QDataStream& in, control_data& cd){
-        in >> cd.type >> cd.md >> cd.kd;
-        return in;
-    }
-};
-
-
-struct server_settings_data {
-
-    QString y_res;
-    QString x_res;
-    QString img_format;
-    QString compression;
-    QString preview_upd;
-    QString xmit_upd;
-    friend QDataStream &operator<<(QDataStream& out, const server_settings_data& server_settings){
-        out << server_settings.y_res <<  server_settings.x_res <<  server_settings.img_format <<  server_settings.compression <<  server_settings.preview_upd <<  server_settings.xmit_upd;
-        return out;
-    }
-    friend QDataStream &operator>>(QDataStream& in, server_settings_data& server_settings){
-        in >> server_settings.y_res >>  server_settings.x_res >>  server_settings.img_format >>  server_settings.compression >>  server_settings.preview_upd >>  server_settings.xmit_upd;
-        return in;
-    }
-};
 
 class remote_management : public QMainWindow
 {
@@ -109,6 +45,7 @@ private slots:
     void on_next_page_2_clicked();
     void on_next_page_clicked();
     void on_connect_button_clicked();
+    void toggle_fullscreen();
 
 public:
     remote_management(QWidget *parent = nullptr);
@@ -124,6 +61,10 @@ private:
     void send_msg_to_cur_client(const QString& msg);
 
 
+    void start_fullscreen();
+    QShortcut* fullscreen_Ctrl_F = nullptr;
+    void stop_fullscreen();
+
     Ui::MainWindow *ui;
 
     class mgm_server;
@@ -135,6 +76,7 @@ private:
     QUdpSocket* control_socket;
     QHostAddress cl;
     bool is_control = false;
+    bool is_fullscreen = true;
 };
 
 
