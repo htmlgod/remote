@@ -25,16 +25,19 @@ extern QMap<quint16, QDataStream*> CLIENT_TO_DATASTREAM;
 extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
 extern QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
-struct control_data {
+
+
+struct mouse_control_data {
     QString type; // move, click
+    int button; // 1 -lmb, 3 - rmb, 2 - mmb, 0 - move
     int xpos;
     int ypos;
-    friend QDataStream &operator<<(QDataStream& out, const control_data& cd){
-        out << cd.type <<  cd.xpos <<  cd.ypos;
+    friend QDataStream &operator<<(QDataStream& out, const mouse_control_data& cd){
+        out << cd.type << cd.button << cd.xpos <<  cd.ypos;
         return out;
     }
-    friend QDataStream &operator>>(QDataStream& in, control_data& cd){
-        in >> cd.type >>  cd.xpos >>  cd.ypos;
+    friend QDataStream &operator>>(QDataStream& in, mouse_control_data& cd){
+        in >> cd.type >> cd.button >> cd.xpos >>  cd.ypos;
         return in;
     }
 };

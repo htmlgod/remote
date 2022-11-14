@@ -35,24 +35,63 @@ remote_management::remote_management(QWidget *parent)
 bool remote_management::eventFilter(QObject *target, QEvent *event)
 {
     if (target == ui->preview_scr and is_control) {
-//        if (event->type() == QEvent::MouseMove) {
-//            auto ev = static_cast<QMouseEvent *>(event);
-//            QByteArray data;
-//            QDataStream out(&data, QIODevice::WriteOnly);
-//            control_data cd{"MOVE", ev->x(),ev->y()};
-//            out << cd;
-//            control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
-//            return true;
-//        }
-        if (event->type() == QEvent::MouseButtonPress) {
+        if (event->type() == QEvent::MouseMove) {
             auto ev = static_cast<QMouseEvent *>(event);
-            //ui->screen->setText(ui->screen->text() + " pressed");
+            QByteArray data;
+            QDataStream out(&data, QIODevice::WriteOnly);
+
+            QTransform tr;
+            tr.scale(1680*1.0/ui->preview_scr->width(), 1050*1.0/ui->preview_scr->height());
+            QPoint new_pos = tr.map(ev->pos());
+
+            mouse_control_data cd{"MOVE", 0, new_pos.x(),new_pos.y()};
+            out << cd;
+            control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
+            return true;
+        }
+        else if (event->type() == QEvent::MouseButtonPress) {
+            auto ev = static_cast<QMouseEvent *>(event);
             QByteArray data;
             QDataStream out(&data, QIODevice::WriteOnly);
             QTransform tr;
             tr.scale(1680*1.0/ui->preview_scr->width(), 1050*1.0/ui->preview_scr->height());
             QPoint new_pos = tr.map(ev->pos());
-            control_data cd{"CLICK", new_pos.x(),new_pos.y()};
+            int button = 0;
+            if (ev->button() & Qt::LeftButton) {
+                button = 1;
+            }
+            else if (ev->button() & Qt::RightButton) {
+                button = 3;
+            }
+            else if (ev->button() & Qt::MidButton) {
+                button = 2;
+            }
+            mouse_control_data cd{"PRESS", button, new_pos.x(),new_pos.y()};
+            qDebug() << "PRESSED" << button;
+            ev->pos();
+            out << cd;
+            control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
+            return true;
+        }
+        else if (event->type() == QEvent::MouseButtonRelease) {
+            auto ev = static_cast<QMouseEvent *>(event);
+            QByteArray data;
+            QDataStream out(&data, QIODevice::WriteOnly);
+            QTransform tr;
+            tr.scale(1680*1.0/ui->preview_scr->width(), 1050*1.0/ui->preview_scr->height());
+            QPoint new_pos = tr.map(ev->pos());
+            int button = 0;
+            if (ev->button() & Qt::LeftButton) {
+                button = 1;
+            }
+            else if (ev->button() & Qt::RightButton) {
+                button = 2;
+            }
+            else if (ev->button() & Qt::MidButton) {
+                button = 3;
+            }
+            qDebug() << "RELEASED" << button;
+            mouse_control_data cd{"RELEASE", button, new_pos.x(),new_pos.y()};
             ev->pos();
             out << cd;
             control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
@@ -72,7 +111,7 @@ void remote_management::mgm_server::readyRead()
     CLIENT_TO_DATASTREAM[cl_port]->startTransaction();
     *CLIENT_TO_DATASTREAM[cl_port] >> data;
     if(!CLIENT_TO_DATASTREAM[cl_port]->commitTransaction()) return;
-    qDebug() << "incomming preview from" << cl_port;
+    //qDebug() << "incomming preview from" << cl_port;
 
     QPixmap pxm;
     QByteArray uncompressed = qUncompress(data);
