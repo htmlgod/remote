@@ -38,8 +38,8 @@ remote_management::remote_management(QWidget *parent)
     connect(ui->settings_fps, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
     connect(ui->settings_hres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
     connect(ui->settings_wres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
-    connect(ui->settings_compression, SIGNAL(currentIndexChanged(QString)), this, SLOT(setting_changed()));
-    connect(ui->settings_imgformat, SIGNAL(currentIndexChanged(QString)), this, SLOT(setting_changed()));
+    connect(ui->settings_compression, SIGNAL(currentIndexChanged(int)), this, SLOT(setting_changed()));
+    connect(ui->settings_imgformat, SIGNAL(currentIndexChanged(int)), this, SLOT(setting_changed()));
     connect(ui->settings_updtime, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
 
     get_settings_from_ui();
@@ -107,7 +107,7 @@ bool remote_management::eventFilter(QObject *target, QEvent *event)
         }
         else if (event->type() == QEvent::Wheel) {
             auto ev = static_cast<QWheelEvent*>(event);
-            mouse_control_data md{"SCROLL", 0,0,0,ev->delta()};
+            mouse_control_data md{"SCROLL", 0,0,0,ev->angleDelta().y()};
             control_data cd{"MOUSE", md, {}};
             send_controls(cd);
             return true;
