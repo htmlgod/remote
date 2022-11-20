@@ -30,6 +30,7 @@ extern QHash<QPushButton*, quint16> SLOT_TO_CLIENT;
 extern QQueue<QPushButton*> CLIENT_SLOTS;
 extern QMap<quint16, QHostAddress> CLIENT_TO_ADDRESS;
 extern server_settings_data XMIT_SETTINGS;
+extern QMap<quint16, uint8_t[32]> CLIENT_TO_KEY;
 
 void gen_key_for_client();
 void encrypt(QByteArray data);

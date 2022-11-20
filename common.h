@@ -49,19 +49,19 @@ struct control_data {
 };
 
 struct server_settings_data {
-
     QString y_res;
     QString x_res;
     QString img_format;
     QString compression;
     QString preview_upd;
     QString xmit_fps;
+    bool is_encrypted;
     friend QDataStream &operator<<(QDataStream& out, const server_settings_data& server_settings){
-        out << server_settings.y_res <<  server_settings.x_res <<  server_settings.img_format <<  server_settings.compression <<  server_settings.preview_upd <<  server_settings.xmit_fps;
+        out << server_settings.y_res <<  server_settings.x_res <<  server_settings.img_format <<  server_settings.compression <<  server_settings.preview_upd <<  server_settings.xmit_fps << server_settings.is_encrypted;
         return out;
     }
     friend QDataStream &operator>>(QDataStream& in, server_settings_data& server_settings){
-        in >> server_settings.y_res >>  server_settings.x_res >>  server_settings.img_format >>  server_settings.compression >>  server_settings.preview_upd >>  server_settings.xmit_fps;
+        in >> server_settings.y_res >>  server_settings.x_res >>  server_settings.img_format >>  server_settings.compression >>  server_settings.preview_upd >>  server_settings.xmit_fps >> server_settings.is_encrypted;
         return in;
     }
 };

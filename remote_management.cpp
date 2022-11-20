@@ -43,6 +43,7 @@ remote_management::remote_management(QWidget *parent)
     connect(ui->settings_updtime, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
 
     get_settings_from_ui();
+    // INIT KUZNECHIK HERE
     QMessageBox msgBox;
     msgBox.setWindowTitle("Удаленное управление");
     msgBox.setText("Установленны следующие настройки по умолчанию:\n"
@@ -51,7 +52,8 @@ remote_management::remote_management(QWidget *parent)
                    "Число кадров в секунду при передаче - " + XMIT_SETTINGS.xmit_fps + "\n"
                    "Интервал обновления предпросмотра - " + XMIT_SETTINGS.preview_upd +  "\n"
                    "Формат изображения - " + XMIT_SETTINGS.img_format + "\n"
-                   "Степень сжатия - " + XMIT_SETTINGS.compression);
+                   "Степень сжатия - " + XMIT_SETTINGS.compression + "\n"
+                   "Использовать шифрование - " + (XMIT_SETTINGS.is_encrypted ? "Да" : "Нет"));
     msgBox.setInformativeText("Хотите ли Вы изменить настройки передачи?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::Yes);
@@ -76,6 +78,9 @@ void remote_management::send_controls(const control_data& cd) {
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
     out << cd;
+    if (XMIT_SETTINGS.is_encrypted) {
+        // do stuff here
+    }
     control_socket->writeDatagram(data, cl, CLIENT_CONTROL_PORT);
 }
 bool remote_management::eventFilter(QObject *target, QEvent *event)
@@ -145,6 +150,9 @@ void remote_management::mgm_server::readyRead()
     //qDebug() << "incomming preview from" << cl_port;
 
     QPixmap pxm;
+    if (XMIT_SETTINGS.is_encrypted) {
+        // do decrypt img here
+    }
     QByteArray uncompressed = qUncompress(data);
     pxm.loadFromData(uncompressed, XMIT_SETTINGS.img_format.toStdString().data());
 
@@ -182,6 +190,7 @@ void remote_management::mgm_server::incomingConnection(qintptr socketfd)
     CLIENT_TO_DATASTREAM[cl_port]->setDevice(client);
     CLIENT_TO_DATASTREAM[cl_port]->setVersion(QDataStream::Qt_5_0);
 
+    // DH HERE OR SOMEWHERE ELSE
     QByteArray settings_data;
     QDataStream out(&settings_data, QIODevice::ReadWrite);
     out.setVersion(QDataStream::Qt_5_0);
@@ -323,7 +332,8 @@ void remote_management::get_settings_from_ui()
         ui->settings_imgformat->currentText(),
         ui->settings_compression->currentText(),
         ui->settings_updtime->text(),
-        ui->settings_fps->text()
+        ui->settings_fps->text(),
+        ui->settings_use_encryption->isChecked()
     };
 }
 
