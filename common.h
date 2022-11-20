@@ -2,9 +2,20 @@
 #define COMMON_H
 
 #include <QMainWindow>
+#include "kuznechik.h"
+QVector<w128_t> get_blocks(const QByteArray& ar, int& fill_blocks);
+QByteArray get_data_from_blocks(const QVector<w128_t>& blocks, int fill_blocks);
+QByteArray encrypt_data(kuz_key_t *subkeys, const uint8_t key[32], const QByteArray& data);
+QByteArray decrypt_data(kuz_key_t *subkeys, const uint8_t key[32], const QByteArray& data);
 // THIS FILE DEPENDS ON common.h OF CLIENT SIDE
 const int CLIENT_CONTROL_PORT = 1235;
-
+struct dh_params {
+    uint8_t g;
+    uint8_t p;
+};
+dh_params gen_dh_params();
+void do_dh_phase1(uint8_t* pk);
+void do_dh_phase2(uint8_t* pk, const uint8_t other[32]);
 struct mouse_control_data {
     QString type; // move, click, wheel
     uint button = 0; // 1 -lmb, 3 - rmb, 2 - mmb, 0 - move
