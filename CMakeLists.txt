@@ -22,21 +22,23 @@ add_executable(rd_management
     remote_management.cpp remote_management.h remote_management.ui
 )
 target_link_libraries(rd_management PRIVATE
-    Qt::Core
-    Qt::Gui
+    Qt5::Core
+    Qt5::Gui
 )
 
 if((QT_VERSION_MAJOR GREATER 4))
     target_link_libraries(rd_management PRIVATE
-        Qt::Network
-        Qt::Widgets
+        Qt5::Network
+        Qt5::Widgets
     )
 endif()
 
 install(TARGETS rd_management
     RUNTIME DESTINATION /usr/local/remote_server
 )
-
+include(InstallRequiredSystemLibraries)
+set(CPACK_DEBIAN_PACKAGE_NAME "remote_installer")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "CNIIAG")
 include(CPack)
 
 # Consider using qt_generate_deploy_app_script() for app deployment if
