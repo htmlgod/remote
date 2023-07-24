@@ -33,10 +33,11 @@ if((QT_VERSION_MAJOR GREATER 4))
     )
 endif()
 
-#install(TARGETS rd_management
-#    BUNDLE DESTINATION .
-#    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#)
+install(TARGETS rd_management
+    RUNTIME DESTINATION /usr/local/remote_server
+)
+
+include(CPack)
 
 # Consider using qt_generate_deploy_app_script() for app deployment if
 # the project can use Qt 6.3. In that case rerun qmake2cmake with
