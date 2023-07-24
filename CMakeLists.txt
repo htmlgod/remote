@@ -37,7 +37,7 @@ install(TARGETS rd_management
     RUNTIME DESTINATION /usr/local/remote_server
 )
 include(InstallRequiredSystemLibraries)
-set(CPACK_DEBIAN_PACKAGE_NAME "remote_installer")
+set(CPACK_DEBIAN_PACKAGE_NAME "remote-server")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "CNIIAG")
 include(CPack)
 
