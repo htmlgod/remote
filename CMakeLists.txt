@@ -16,11 +16,13 @@ find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} OPTIONAL_COMPONENTS Network Widgets)
 
+configure_file(common.h.in common.h)
+
 add_executable(rd_management
-    common.h
     main.cpp
-    remote_management.cpp remote_management.h remote_management.ui
+    remote_management.cpp remote_management.ui
 )
+target_include_directories(rd_management PUBLIC "${PROJECT_BINARY_DIR}")
 target_link_libraries(rd_management PRIVATE
     Qt5::Core
     Qt5::Gui

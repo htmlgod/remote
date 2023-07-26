@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define VERSION "@PROJECT_VERSION@"
+
 #include <QMainWindow>
 // THIS FILE DEPENDS ON common.h OF CLIENT SIDE
 const int CLIENT_CONTROL_PORT = 1235;
