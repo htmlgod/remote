@@ -35,6 +35,14 @@ remote_management::remote_management(QWidget *parent)
     ui->connect_button->setEnabled(false);
     ui->settings_save_btn->setEnabled(false);
 
+    ui->settings_hres->setText(inisettings.value("xmit/hres", "720").toString());
+    ui->settings_wres->setText(inisettings.value("xmit/wres", "1280").toString());
+    ui->settings_imgformat->setCurrentIndex(inisettings.value("xmit/imgformat", "1").toInt());
+    ui->settings_compression->setCurrentIndex(inisettings.value("xmit/compression", "10").toInt());
+    ui->settings_updtime->setText(inisettings.value("xmit/updtime", "3").toString());
+    ui->settings_fps->setText(inisettings.value("xmit/fps", "25").toString());
+
+
     connect(ui->settings_fps, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
     connect(ui->settings_hres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
     connect(ui->settings_wres, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
@@ -45,7 +53,7 @@ remote_management::remote_management(QWidget *parent)
     get_settings_from_ui();
     QMessageBox msgBox;
     msgBox.setWindowTitle("Удаленное управление");
-    msgBox.setText("Установленны следующие настройки по умолчанию:\n"
+    msgBox.setText("Установленны следующие настройки:\n"
                    "Высота изображения - " + XMIT_SETTINGS.y_res + "\n"
                    "Ширина изображения - " + XMIT_SETTINGS.x_res + "\n"
                    "Число кадров в секунду при передаче - " + XMIT_SETTINGS.xmit_fps + "\n"
@@ -335,8 +343,7 @@ void remote_management::on_show_settings_action_triggered()
 
 void remote_management::on_show_about_action_triggered()
 {
-    QMessageBox::information(ui->preview_scr,
-                             "О программе", "Программа.\n");
+    QMessageBox::information(ui->preview_scr, "О программе", QString("Remote Desktop Server, v") + QString(VERSION));
 }
 
 void remote_management::on_exit_action_triggered()
@@ -359,6 +366,12 @@ void remote_management::on_return_from_settings_btn_clicked()
 
 void remote_management::on_settings_save_btn_clicked()
 {
+    inisettings.setValue("xmit/hres", ui->settings_hres->text());
+    inisettings.setValue("xmit/wres", ui->settings_wres->text());
+    inisettings.setValue("xmit/imgformat", ui->settings_imgformat->currentIndex());
+    inisettings.setValue("xmit/compression", ui->settings_compression->currentIndex());
+    inisettings.setValue("xmit/updtime", ui->settings_updtime->text());
+    inisettings.setValue("xmit/fps", ui->settings_fps->text());
     get_settings_from_ui();
     ui->stackedWidget->setCurrentIndex(1);
 }
