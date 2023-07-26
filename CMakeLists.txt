@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(rd_management VERSION 1.0 LANGUAGES C CXX)
+project(remote_server VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -18,31 +18,21 @@ find_package(Qt${QT_VERSION_MAJOR} OPTIONAL_COMPONENTS Network Widgets)
 
 configure_file(common.h.in common.h)
 
-add_executable(rd_management
+add_executable(${PROJECT_NAME}
     main.cpp
     remote_management.cpp remote_management.ui
 )
-target_include_directories(rd_management PUBLIC "${PROJECT_BINARY_DIR}")
-target_link_libraries(rd_management PRIVATE
+target_include_directories(${PROJECT_NAME} PUBLIC 
+    "${PROJECT_BINARY_DIR}"
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
     Qt5::Gui
 )
 
 if((QT_VERSION_MAJOR GREATER 4))
-    target_link_libraries(rd_management PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt5::Network
         Qt5::Widgets
     )
 endif()
-
-install(TARGETS rd_management
-    RUNTIME DESTINATION /usr/local/remote_server
-)
-include(InstallRequiredSystemLibraries)
-set(CPACK_DEBIAN_PACKAGE_NAME "remote-server")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "CNIIAG")
-include(CPack)
-
-# Consider using qt_generate_deploy_app_script() for app deployment if
-# the project can use Qt 6.3. In that case rerun qmake2cmake with
-# --min-qt-version=6.3.
