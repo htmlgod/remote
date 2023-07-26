@@ -41,6 +41,7 @@ remote_management::remote_management(QWidget *parent)
     connect(ui->settings_compression, SIGNAL(currentIndexChanged(int)), this, SLOT(setting_changed()));
     connect(ui->settings_imgformat, SIGNAL(currentIndexChanged(int)), this, SLOT(setting_changed()));
     connect(ui->settings_updtime, SIGNAL(textChanged(QString)), this, SLOT(setting_changed()));
+    QMessageBox::information(0, "Info", QString("Remote Desktop Server, v") + QString(VERSION));
 
     get_settings_from_ui();
     QMessageBox msgBox;
