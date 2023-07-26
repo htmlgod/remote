@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(remote_server VERSION 1.0.0 LANGUAGES C CXX)
+project(remote-server VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -36,3 +36,6 @@ if((QT_VERSION_MAJOR GREATER 4))
         Qt5::Widgets
     )
 endif()
+
+include(installing.cmake)
+include(debpackaging.cmake)
