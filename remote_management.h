@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QCursor>
 #include <QWheelEvent>
+#include <QSettings>
 
 #include <common.h>
 
@@ -62,6 +63,7 @@ public:
 
     ~remote_management();
 private:
+    QSettings inisettings{QString("/usr/local/remote-server/config.ini"), QSettings::IniFormat};
     QPoint translate_coordinates(const QPoint& mouse_pos);
     void send_controls(const control_data& data);
     void send_msg_to_cur_client(const QString& msg);
