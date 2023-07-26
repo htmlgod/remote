@@ -38,7 +38,7 @@ remote_management::remote_management(QWidget *parent)
     ui->settings_hres->setText(inisettings.value("xmit/hres", "720").toString());
     ui->settings_wres->setText(inisettings.value("xmit/wres", "1280").toString());
     ui->settings_imgformat->setCurrentIndex(inisettings.value("xmit/imgformat", "1").toInt());
-    ui->settings_compression->setCurrentIndex(inisettings.value("xmit/comression", "9").toInt());
+    ui->settings_compression->setCurrentIndex(inisettings.value("xmit/compression", "10").toInt());
     ui->settings_updtime->setText(inisettings.value("xmit/updtime", "3").toString());
     ui->settings_fps->setText(inisettings.value("xmit/fps", "25").toString());
 
